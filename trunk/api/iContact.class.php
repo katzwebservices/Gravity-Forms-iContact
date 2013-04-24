@@ -9,7 +9,7 @@ class iContact {
 	private $appId;
 	private $accountId;
 	private $clientFolderId;
-	private $debugMode;
+	public $debugMode;
 
 	/**
 	 *
