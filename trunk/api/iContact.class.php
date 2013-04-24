@@ -24,12 +24,21 @@ class iContact {
 	public function __construct($apiUrl = '', $username = '', $password = '', $appId = '', $accountId = '', $clientFolderId = null, $debugMode = false) {
 
 		$this->settings = $settings = (array)get_option("gf_icontact_settings");
-		$this->debugMode = ($debugMode || current_user_can('administrator') && isset($_REUQEST['debug']));
+
+		/** You've got to be able to manage options to see debug mode. */
+		$this->debugMode = current_user_can('manage_options') && ($settings['debug'] || $debugMode || isset($_REQUEST['debug']));
+
+		$this->sandbox = !empty($settings['sandbox']);
 		$this->apiUrl = $this->getApiUrl();
-		$this->username = $settings['username'];
-		$this->password = $settings['password'];
-		$this->debug = $settings['debug'];
-		$this->appId = $settings['appid'];
+		if($this->sandbox) {
+			$this->username = $settings['sandbox-username'];
+			$this->password = $settings['sandbox-password'];
+			$this->appId = $settings['sandbox-appid'];
+		} else {
+			$this->username = $settings['username'];
+			$this->password = $settings['password'];
+			$this->appId = $settings['appid'];
+		}
 		$this->accountId = empty($settings['accountid']) ? $this->getAccountId() : $settings['accountid'];
 		$this->clientFolderId = empty($settings['clientfolderid']) ? $this->getClientFolderId() : $settings['clientfolderid'];
 
@@ -39,7 +48,7 @@ class iContact {
 	}
 
 	public function getApiUrl() {
-		if($this->debugMode) {
+		if($this->sandbox) {
 			$apiUrl = 'https://app.sandbox.icontact.com/icp'; // $apiUrl;
 		}	else {
 			$apiUrl = 'https://app.icontact.com/icp'; // $apiUrl;
@@ -152,7 +161,9 @@ class iContact {
 			$this->lastError = 'iContact returned ' . $response['code'];
 			return false;
 		}
-		if($this->debugMode) $this->dump($response);
+		if($this->debugMode) {
+			$this->dump($response);
+		}
 		return $success;
 	}
 	/**
@@ -175,7 +186,9 @@ class iContact {
 			$this->lastError = 'iContact returned ' . $response['code'];
 			return false;
 		}
-		if($this->debugMode) $this->dump($response);
+		if($this->debugMode) {
+			$this->dump($response);
+		}
 		return $listIds;
 	}
 
@@ -220,7 +233,9 @@ class iContact {
 			$this->lastError = 'iContact returned ' . $response['code'];
 			return false;
 		}
-		if($this->debugMode) $this->dump($response);
+		if($this->debugMode) {
+			$this->dump($response);
+		}
 		return $success;
 	}
 
@@ -230,8 +245,6 @@ class iContact {
 	 */
 	public function getLists() {
 		$lists;
-
-		#$debug = $this->debug;
 
 		$lists = get_site_transient('icgf_lists');
 		if($lists && (!isset($_REQUEST['refresh']) || (isset($_REQUEST['refresh']) && $_REQUEST['refresh'] !== 'lists'))) {
@@ -244,9 +257,9 @@ class iContact {
 		} else {
 			return false;
 		}
-		if($this->debugMode) $this->dump($response);
-
-		#$this->debug = $debug;
+		if($this->debugMode) {
+			$this->dump($response);
+		}
 
 		set_site_transient('icgf_lists', $lists);
 
@@ -316,7 +329,7 @@ class iContact {
 			)
 		));
 		if ($response['code'] != self::STATUS_CODE_SUCCESS) {
-			$this->lastError = 'iContact returned ' . $response['code'];
+			$this->lastError = sprintf(__('iContact returned %s', 'gravity-forms-icontact'), $response['code']);
 			return false;
 		}
 		if($this->debugMode) $this->dump($response);
@@ -362,7 +375,7 @@ class iContact {
 			return false;
 		}
 
-		if($this->debug) {
+		if($this->debugMode) {
 			$this->dump(array('$url' => $url, '$args' => $args, '$result' => $result), __('Request sent to iContact', 'gravity-forms-icontact'));
 		}
 
@@ -393,7 +406,7 @@ class iContact {
 		if(!is_admin() && current_user_can('gravityforms_icontact')) {
 			if(!empty($title)) {
 				echo '<h3>'.$title.'</h3>';
-				echo '<h5 style="font-weight:normal;">'.__(sprintf('Note: This is visible to admins only. You have "Debug Form Submissions for Administrators" turned on in the %splugin settings%s.', '<a href="' . admin_url( 'admin.php?page=gf_settings&addon=iContact' ).'">', '</a>'),'gravity-forms-icontact').'</h5>';
+				echo '<h5 style="font-weight:normal;">'.__(sprintf('Note: This is visible only to users who can manage options. You have "Debug Form Submissions for Administrators" turned on in the %splugin settings%s.', '<a href="' . admin_url( 'admin.php?page=gf_settings&addon=iContact' ).'">', '</a>'),'gravity-forms-icontact').'</h5>';
 			}
 			echo "<pre>" . print_r($array, true) . "</pre>";
 		}
@@ -412,4 +425,3 @@ class iContact {
 	}
 }
 
-?>

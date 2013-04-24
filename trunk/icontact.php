@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms iContact Add-On
 Plugin URI: http://www.seodenver.com/icontact/
 Description: Integrates Gravity Forms with iContact allowing form submissions to be automatically sent to your iContact account
-Version: 1.2.1
+Version: 1.3
 Author: Katz Web Services, Inc.
 Author URI: http://www.katzwebservices.com
 
@@ -56,6 +56,9 @@ class GFiContact {
         if(is_admin()){
             //loading translations
             load_plugin_textdomain('gravity-forms-icontact', FALSE, '/gravity-forms-icontact/languages' );
+
+            add_filter("transient_update_plugins", array('GFiContact', 'check_update'));
+            #add_filter("site_transient_update_plugins", array('GFiContact', 'check_update'));
 
             //creates a new Settings page on Gravity Forms' settings screen
             if(self::has_access("gravityforms_icontact")){
@@ -204,7 +207,11 @@ class GFiContact {
                 "username" => stripslashes($_POST["gf_icontact_username"]),
                 "password" => stripslashes($_POST["gf_icontact_password"]),
                 "appid" => stripslashes($_POST["gf_icontact_appid"]),
-                "debug" => isset($_POST["gf_icontact_debug"])
+                "debug" => isset($_POST["gf_icontact_debug"]),
+                "sandbox" => isset($_POST["gf_icontact_sandbox"]),
+                "sandbox-username" => stripslashes($_POST["gf_icontact_sandbox_username"]),
+                "sandbox-password" => stripslashes($_POST["gf_icontact_sandbox_password"]),
+                "sandbox-appid" => stripslashes($_POST["gf_icontact_sandbox_appid"]),
             );
             update_option("gf_icontact_settings", $settings);
         }
@@ -217,6 +224,10 @@ class GFiContact {
                 "password" => '',
                 'appid' => '',
                 "debug" => false,
+                "sandbox" => false,
+                "sandbox-username" => '',
+                "sandbox-password" => '',
+                'sandbox-appid' => '',
             ));
 
         $api = self::get_api();
@@ -244,6 +255,20 @@ class GFiContact {
             <?php
         }
         ?>
+        <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                $('#gf_icontact_sandbox').live('ready click change', function(e) {
+                    var time = 'normal';
+                    // Show immediately on load; no fade-in
+                    if(e.type === 'ready') { time = 0; }
+                    if($(this).is(':checked')) {
+                        $('tr.sandbox').fadeIn(time);
+                    } else {
+                        $('tr.sandbox').fadeOut(time);
+                    }
+                }).trigger('ready');
+            });
+        </script>
         <form method="post" action="<?php echo remove_query_arg('refresh'); ?>">
             <?php wp_nonce_field("update", "gf_icontact_update") ?>
             <?php if(!$valid)  { ?>
@@ -283,7 +308,26 @@ class GFiContact {
                 </tr>
                 <tr>
                     <th scope="row"><label for="gf_icontact_debug"><?php _e("Debug Form Submissions for Administrators", "gravity-forms-icontact"); ?></label> </th>
-                    <td><input type="checkbox" id="gf_icontact_debug" name="gf_icontact_debug" size="40" value="1" <?php checked($settings["debug"], true); ?>/></td>
+                    <td><input type="checkbox" id="gf_icontact_debug" name="gf_icontact_debug" size="40" value="1" <?php checked($settings["debug"], true); ?>/> <span class="howto"><?php _e('This will show you the information being passed to iContact when a form is submitted.', 'gravity-forms-icontact'); ?></span></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="gf_icontact_sandbox"><?php _e("Use the iContact Sandbox", "gravity-forms-icontact"); ?></label> </th>
+                    <td><label for="gf_icontact_sandbox"><input type="checkbox" id="gf_icontact_sandbox" name="gf_icontact_sandbox" size="40" value="1" <?php checked($settings["sandbox"], true); ?>/> <span class="howto"><?php _e('The Sandbox is recommended as the starting place for new development projects (There&rsquo;s no chance of accidentally spamming your customers here).', 'gravity-forms-icontact'); ?></span></label>
+</td>
+                </tr>
+                <tr class="sandbox">
+                    <th scope="row"><label for="gf_icontact_sandbox_username"><?php _e("iContact Sandbox Username", "gravity-forms-icontact"); ?></label> </th>
+                    <td><input type="text" id="gf_icontact_sandbox_username" name="gf_icontact_sandbox_username" size="30" value="<?php echo empty($settings["sandbox-username"]) ? '' : esc_attr($settings["sandbox-username"]); ?>"/></td>
+                </tr>
+
+                <tr class="sandbox">
+                    <th scope="row"><label for="gf_icontact_sandbox_appid"><?php _e("Sandbox Application ID", "gravity-forms-icontact"); ?></label> </th>
+                    <td><input type="text" class="code" id="gf_icontact_sandbox_appid" name="gf_icontact_sandbox_appid" size="40" value="<?php echo !empty($settings["sandbox-appid"]) ? esc_attr($settings["sandbox-appid"]) : ''; ?>"/></td>
+                </tr>
+
+                <tr class="sandbox">
+                    <th scope="row"><label for="gf_icontact_sandbox_password"><?php _e("Sandbox Application Password", "gravity-forms-icontact"); ?></label> </th>
+                    <td><input type="password" class="code" id="gf_icontact_sandbox_password" name="gf_icontact_sandbox_password" size="40" value="<?php echo !empty($settings["sandbox-password"]) ? esc_attr($settings["sandbox-password"]) : ''; ?>"/></td>
                 </tr>
                 <tr>
                     <td colspan="2" ><input type="submit" name="gf_icontact_submit" class="button-primary" value="<?php _e("Save Settings", "gravity-forms-icontact") ?>" /></td>
@@ -359,8 +403,8 @@ class GFiContact {
             </div>
 
             <ul class="subsubsub" style="margin-top:0;">
-                <li><a href="<?php echo admin_url('admin.php?page=gf_settings&addon=iContact'); ?>">iContact Settings</a> |</li>
-                <li><a href="<?php echo admin_url('admin.php?page=gf_icontact'); ?>" class="current">iContact Feeds</a></li>
+                <li><a href="<?php echo admin_url('admin.php?page=gf_settings&addon=iContact'); ?>"><?php _e('iContact Settings', 'gravity-forms-icontact'); ?></a> |</li>
+                <li><a href="<?php echo admin_url('admin.php?page=gf_icontact'); ?>" class="current"><?php _e('iContact Feeds', 'gravity-forms-icontact'); ?></a></li>
             </ul>
 
             <form id="feed_form" method="post">
@@ -649,7 +693,8 @@ class GFiContact {
                  <ul id="gf_icontact_list_list" class="hide-if-js">
                     <?php
                     foreach ($lists as $key => $list){
-                        $name = empty($list['publicname']) ? $list['name'] : $list['publicname'];
+                        $name = $list['name'];
+                        $name .= empty($list['publicname']) ? '' : ' ('.$list['publicname'].')';
                         $selected = in_array($list['listId'], $contact_lists) ? "checked='checked'" : "";
                         ?>
                         <li><label style="display:block;" for="gf_icontact_list_<?php echo esc_html($list['listId']); ?>"><input type="checkbox" name="gf_icontact_list[]" id="gf_icontact_list_<?php echo esc_html($list['listId']); ?>" value="<?php echo esc_html($list['listId']) . "|:|" . esc_html($name) ?>" <?php echo $selected ?> /> <?php echo esc_html($name) ?></label></li>
@@ -1108,9 +1153,9 @@ class GFiContact {
         $fields = array();
 
         //Adding default fields
-        array_push($form["fields"],array("id" => "date_created" , "label" => __("Entry Date", "gravityformsmailchimp")));
-        array_push($form["fields"],array("id" => "ip" , "label" => __("User IP", "gravityformsmailchimp")));
-        array_push($form["fields"],array("id" => "source_url" , "label" => __("Source Url", "gravityformsmailchimp")));
+        array_push($form["fields"],array("id" => "date_created" , "label" => __("Entry Date", "gravity-forms-icontact")));
+        array_push($form["fields"],array("id" => "ip" , "label" => __("User IP", "gravity-forms-icontact")));
+        array_push($form["fields"],array("id" => "source_url" , "label" => __("Source Url", "gravity-forms-icontact")));
 
         if(is_array($form["fields"])){
             foreach($form["fields"] as $field){
@@ -1118,7 +1163,7 @@ class GFiContact {
 
                     //If this is an address field, add full name to the list
                     if(RGFormsModel::get_input_type($field) == "address")
-                        $fields[] =  array($field["id"], GFCommon::get_label($field) . " (" . __("Full" , "gravityformsmailchimp") . ")");
+                        $fields[] =  array($field["id"], GFCommon::get_label($field) . " (" . __("Full" , "gravity-forms-icontact") . ")");
 
                     foreach($field["inputs"] as $input)
                         $fields[] =  array($input["id"], GFCommon::get_label($field, $input["id"]));
@@ -1129,6 +1174,27 @@ class GFiContact {
             }
         }
         return $fields;
+    }
+
+    /**
+     * Convert an array of checkbox values into a string compatible with iContact
+     *
+     * Use the `icontact_checkbox_implode_glue` filter to modify the implode glue.
+     *
+     * @filter icontact_checkbox_implode_glue
+     * @param  array $entry    Entry submission array
+     * @param  integer $field_id ID of the field to get the values of
+     * @return string           Imploded array
+     */
+    private static function get_checkbox_value($entry, $field_id) {
+        $output = array();
+        foreach($entry as $k => $v) {
+            if(is_numeric($k) && floor($k) === floatval($field_id)) {
+                $output[] = $v;
+            }
+        }
+
+        return implode(apply_filters('icontact_checkbox_implode_glue', '; '), $output);
     }
 
     private static function get_address($entry, $field_id){
@@ -1198,13 +1264,16 @@ class GFiContact {
 
     public static function export_feed($entry, $form, $feed, $api){
         $email = $entry[(int)$feed["meta"]["field_map"]["email"]];
+        IDX_Plus::r($entry);
 
         $merge_vars = array();
         foreach($feed["meta"]["field_map"] as $var_tag => $field_id){
 
             $field = RGFormsModel::get_field($form, $field_id);
 
-            if($var_tag == 'address_full') {
+            if($field['type'] === 'checkbox') {
+                $merge_vars[$var_tag] = self::get_checkbox_value($entry, $field_id);
+            } else if($var_tag == 'address_full') {
                 $merge_vars[$var_tag] = self::get_address($entry, $field_id);
             } else if($var_tag  == 'country') {
                 $merge_vars[$var_tag] = empty($entry[$field_id]) ? '' : GFCommon::get_country_code(trim($entry[$field_id]));
@@ -1246,7 +1315,7 @@ if($field['type'] == 'textarea') {
             }
 
         // 3. Add custom fields for contact
-        if($api->debug && !is_admin() && self::has_access('gravityforms_icontact')) {
+        if($api->debugMode && !is_admin() && self::has_access('gravityforms_icontact')) {
             $api->dump(array(
                 'entry' => $entry,
                 /* 'form' => $form,  */

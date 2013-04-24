@@ -1,7 +1,7 @@
 # Gravity Forms iContact Add-on #
 **Tags:** iContact, gravity forms, forms, gravity, form, crm, gravity form, email, newsletter, i Contact, mailing list, email marketing, newsletters  
 **Requires at least:** 2.8  
-**Tested up to:** 3.5  
+**Tested up to:** 3.6  
 **Stable tag:** trunk  
 **Contributors:** katzwebdesign, katzwebservices  
 Donate link:https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=zackkatz%40gmail%2ecom&item_name=Gravity%20Forms%20iContact&no_shipping=0&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8
@@ -63,6 +63,12 @@ This plugin is released under a GPL license.
 
 ## Changelog ##
 
+### 1.3 ###
+* Tested with Gravity Forms 1.7
+* Added: Now fully supports sandbox mode (<a href="http://wordpress.org/support/topic/broken-sandbox-mode-support" rel="nofollow">as requested</a>)
+* Fixed: <a href="http://wordpress.org/support/topic/checkbox-fields-arent-mapping-to-icontact" rel="nofollow">Issue</a> with checkboxes not submitting values
+* Improved: If list names have public names, they're added to the iContact name instead of replacing it (<a href="http://wordpress.org/support/topic/list-names" rel="nofollow">as requested</a>)
+
 ### 1.2.1 ###
 *** Improved Custom Field support:** now sorts alphabetically, no longer has limit on number of custom fields.  
 * Fixed PHP warning `array_diff() ... on line 37`
@@ -88,6 +94,12 @@ This plugin is released under a GPL license.
 * Liftoff!
 
 ## Upgrade Notice ##
+
+### 1.3 ###
+* Tested with Gravity Forms 1.7
+* Added: Now fully supports sandbox mode (<a href="http://wordpress.org/support/topic/broken-sandbox-mode-support" rel="nofollow">as requested</a>)
+* Fixed: <a href="http://wordpress.org/support/topic/checkbox-fields-arent-mapping-to-icontact" rel="nofollow">Issue</a> with checkboxes not submitting values
+* Improved: If list names have public names, they're added to the iContact name instead of replacing it (<a href="http://wordpress.org/support/topic/list-names" rel="nofollow">as requested</a>)
 
 ### 1.2 ###
 * Fixed issue where only 20 lists were being fetched for Feed setup
