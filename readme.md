@@ -34,10 +34,10 @@ iContact moves your messages straight from your business to your customers' inbo
 
 **1. It's easy to integrate Gravity Forms with iContact:** set up a "Feed" and match up the fields you'd like sent to iContact  
 ###1. Create multiple feeds for different forms that get added to different iContact lists###
-![Create multiple feeds for different forms that get added to different iContact lists](http://s.wordpress.org/extend/plugins/gravity-forms-icontact-add-on/screenshot-1.jpg)
+![Create multiple feeds for different forms that get added to different iContact lists](http://s.wordpress.org/extend/plugins/gravity-forms-icontact/screenshot-1.jpg)
 
 ###2. The Gravity Forms iContact Add-on settings page###
-![The Gravity Forms iContact Add-on settings page](http://s.wordpress.org/extend/plugins/gravity-forms-icontact-add-on/screenshot-2.jpg)
+![The Gravity Forms iContact Add-on settings page](http://s.wordpress.org/extend/plugins/gravity-forms-icontact/screenshot-2.jpg)
 
 
 ## Installation ##
