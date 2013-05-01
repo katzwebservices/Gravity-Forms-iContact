@@ -95,6 +95,9 @@ This plugin is released under a GPL license.
 
 ## Upgrade Notice ##
 
+### 1.3.1 ###
+* Removed fatal error development code. Sorry about that!
+
 ### 1.3 ###
 * Tested with Gravity Forms 1.7
 * Added: Now fully supports sandbox mode (<a href="http://wordpress.org/support/topic/broken-sandbox-mode-support" rel="nofollow">as requested</a>)
