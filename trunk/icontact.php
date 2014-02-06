@@ -1384,7 +1384,7 @@ if($field['type'] == 'textarea') {
         $field = RGFormsModel::get_field($form, $config["optin_field_id"]);
         $field_value = RGFormsModel::get_field_value($field, array());
         
-        if( !empty( $config["optin_value_length"] ) ) {
+        if( 'product' == $field['type'] && !empty( $config["optin_value_length"] ) ) {
         	$field_value = !empty( $field_value ) ? substr( $field_value, 0, $config["optin_value_length"] ) : ''; //@since 1.3.1.1
         }
         
