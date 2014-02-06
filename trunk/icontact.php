@@ -1059,7 +1059,7 @@ class GFiContact {
         die("EndSelectForm('" . str_replace("'", "\'", $str) . "', " . GFCommon::json_encode($form) . ");");
     }
 
-    private function listMergeVars() {
+    private static function listMergeVars() {
         // From http://developer.icontact.com/documentation/contacts/
 
         $api = self::get_api();
