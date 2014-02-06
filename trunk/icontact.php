@@ -640,6 +640,8 @@ class GFiContact {
             $config["meta"]["optin_field_id"] = $config["meta"]["optin_enabled"] ? isset($_POST["icontact_optin_field_id"]) ? $_POST["icontact_optin_field_id"] : '' : "";
             $config["meta"]["optin_operator"] = $config["meta"]["optin_enabled"] ? isset($_POST["icontact_optin_operator"]) ? $_POST["icontact_optin_operator"] : '' : "";
             $config["meta"]["optin_value"] = $config["meta"]["optin_enabled"] ? $_POST["icontact_optin_value"] : "";
+            //@since 1.3.1.1
+            $config["meta"]["optin_value_length"] = !empty( $config["meta"]["optin_value"] ) ? strlen( $config["meta"]["optin_value"] ) : 0;
 
 
 
@@ -1372,16 +1374,24 @@ if($field['type'] == 'textarea') {
     }
 
     public static function is_optin($form, $settings){
+    	if( empty( $settings['meta']['optin_enabled'] ) ) {
+			return true;
+		}
+    
         $config = $settings["meta"];
         $operator = $config["optin_operator"];
 
         $field = RGFormsModel::get_field($form, $config["optin_field_id"]);
         $field_value = RGFormsModel::get_field_value($field, array());
+        
+        if( !empty( $config["optin_value_length"] ) ) {
+        	$field_value = !empty( $field_value ) ? substr( $field_value, 0, $config["optin_value_length"] ) : ''; //@since 1.3.1.1
+        }
+        
         $is_value_match = is_array($field_value) ? in_array($config["optin_value"], $field_value) : $field_value == $config["optin_value"];
 
-        return  !$config["optin_enabled"] || empty($field) || ($operator == "is" && $is_value_match) || ($operator == "isnot" && !$is_value_match);
+        return  empty($field) || ($operator == "is" && $is_value_match) || ($operator == "isnot" && !$is_value_match);
     }
-
 
     private static function is_gravityforms_installed(){
         return class_exists("RGForms");
