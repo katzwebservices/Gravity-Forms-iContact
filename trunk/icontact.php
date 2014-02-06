@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms iContact Add-On
 Plugin URI: http://www.seodenver.com/icontact/
 Description: Integrates Gravity Forms with iContact allowing form submissions to be automatically sent to your iContact account
-Version: 1.3.1
+Version: 1.3.1.1
 Author: Katz Web Services, Inc.
 Author URI: http://www.katzwebservices.com
 
@@ -123,7 +123,7 @@ class GFiContact {
         }
     }
 
-    function settings_link( $links, $file ) {
+    static function settings_link( $links, $file ) {
         static $this_plugin;
         if( ! $this_plugin ) $this_plugin = self::get_base_url();
         if ( $file == $this_plugin ) {
@@ -1338,14 +1338,14 @@ if($field['type'] == 'textarea') {
         return;
     }
 
-    function entry_info_link_to_icontact($form_id, $lead) {
+    static function entry_info_link_to_icontact($form_id, $lead) {
         $icontact_id = gform_get_meta($lead['id'], 'icontact_id');
         if(!empty($icontact_id)) {
             echo sprintf(__('iContact ID: <a href="https://app.icontact.com/icp/core/mycontacts/contacts/edit/'.$icontact_id.'">%s</a><br /><br />', 'gravity-forms-icontact'), $icontact_id);
         }
     }
 
-    private function add_note($id, $note) {
+    private static function add_note($id, $note) {
 
         if(!apply_filters('gravityforms_icontact_add_notes_to_entries', true)) { return; }
 
@@ -1407,7 +1407,7 @@ if($field['type'] == 'textarea') {
         }
     }
 
-    private function simpleXMLToArray($xml,
+    private static function simpleXMLToArray($xml,
                     $flattenValues=true,
                     $flattenAttributes = true,
                     $flattenChildren=true,
@@ -1460,7 +1460,7 @@ if($field['type'] == 'textarea') {
         return $return;
     }
 
-    private function convert_xml_to_object($response) {
+    private static function convert_xml_to_object($response) {
         $response = @simplexml_load_string($response);  // Added @ 1.2.2
         if(is_object($response)) {
             return $response;
@@ -1469,7 +1469,7 @@ if($field['type'] == 'textarea') {
         }
     }
 
-    private function convert_xml_to_array($response) {
+    private static function convert_xml_to_array($response) {
         $response = self::convert_xml_to_object($response);
         $response = self::simpleXMLToArray($response);
         if(is_array($response)) {
@@ -1489,12 +1489,12 @@ if($field['type'] == 'textarea') {
     }
 
     //Returns the url of the plugin's root folder
-    protected function get_base_url(){
+    protected static function get_base_url(){
         return plugins_url(null, __FILE__);
     }
 
     //Returns the physical path of the plugin's root folder
-    protected function get_base_path(){
+    protected static function get_base_path(){
         $folder = basename(dirname(__FILE__));
         return WP_PLUGIN_DIR . "/" . $folder;
     }
