@@ -3,12 +3,12 @@
 Plugin Name: Gravity Forms iContact Add-On
 Plugin URI: http://www.seodenver.com/icontact/
 Description: Integrates Gravity Forms with iContact allowing form submissions to be automatically sent to your iContact account
-Version: 1.3.1
+Version: 1.3.2
 Author: Katz Web Services, Inc.
 Author URI: http://www.katzwebservices.com
 
 ------------------------------------------------------------------------
-Copyright 2011 Katz Web Services, Inc.
+Copyright 2014 Katz Web Services, Inc.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ class GFiContact {
     private static $path = "gravity-forms-icontact/icontact.php";
     private static $url = "http://www.gravityforms.com";
     private static $slug = "gravity-forms-icontact";
-    private static $version = "1.3.1";
+    private static $version = "1.3.2";
     private static $min_gravityforms_version = "1.3.9";
 
     //Plugin starting point. Will load appropriate files
@@ -123,7 +123,7 @@ class GFiContact {
         }
     }
 
-    function settings_link( $links, $file ) {
+    static function settings_link( $links, $file ) {
         static $this_plugin;
         if( ! $this_plugin ) $this_plugin = self::get_base_url();
         if ( $file == $this_plugin ) {
@@ -640,6 +640,8 @@ class GFiContact {
             $config["meta"]["optin_field_id"] = $config["meta"]["optin_enabled"] ? isset($_POST["icontact_optin_field_id"]) ? $_POST["icontact_optin_field_id"] : '' : "";
             $config["meta"]["optin_operator"] = $config["meta"]["optin_enabled"] ? isset($_POST["icontact_optin_operator"]) ? $_POST["icontact_optin_operator"] : '' : "";
             $config["meta"]["optin_value"] = $config["meta"]["optin_enabled"] ? $_POST["icontact_optin_value"] : "";
+            //@since 1.3.1.1
+            $config["meta"]["optin_value_length"] = !empty( $config["meta"]["optin_value"] ) ? strlen( $config["meta"]["optin_value"] ) : 0;
 
 
 
@@ -1057,7 +1059,7 @@ class GFiContact {
         die("EndSelectForm('" . str_replace("'", "\'", $str) . "', " . GFCommon::json_encode($form) . ");");
     }
 
-    private function listMergeVars() {
+    private static function listMergeVars() {
         // From http://developer.icontact.com/documentation/contacts/
 
         $api = self::get_api();
@@ -1336,14 +1338,14 @@ if($field['type'] == 'textarea') {
         return;
     }
 
-    function entry_info_link_to_icontact($form_id, $lead) {
+    static function entry_info_link_to_icontact($form_id, $lead) {
         $icontact_id = gform_get_meta($lead['id'], 'icontact_id');
         if(!empty($icontact_id)) {
             echo sprintf(__('iContact ID: <a href="https://app.icontact.com/icp/core/mycontacts/contacts/edit/'.$icontact_id.'">%s</a><br /><br />', 'gravity-forms-icontact'), $icontact_id);
         }
     }
 
-    private function add_note($id, $note) {
+    private static function add_note($id, $note) {
 
         if(!apply_filters('gravityforms_icontact_add_notes_to_entries', true)) { return; }
 
@@ -1372,16 +1374,24 @@ if($field['type'] == 'textarea') {
     }
 
     public static function is_optin($form, $settings){
+    	if( empty( $settings['meta']['optin_enabled'] ) ) {
+			return true;
+		}
+
         $config = $settings["meta"];
         $operator = $config["optin_operator"];
 
         $field = RGFormsModel::get_field($form, $config["optin_field_id"]);
         $field_value = RGFormsModel::get_field_value($field, array());
+
+        if( 'product' == $field['type'] && !empty( $config["optin_value_length"] ) ) {
+        	$field_value = !empty( $field_value ) ? substr( $field_value, 0, $config["optin_value_length"] ) : ''; //@since 1.3.1.1
+        }
+
         $is_value_match = is_array($field_value) ? in_array($config["optin_value"], $field_value) : $field_value == $config["optin_value"];
 
-        return  !$config["optin_enabled"] || empty($field) || ($operator == "is" && $is_value_match) || ($operator == "isnot" && !$is_value_match);
+        return  empty($field) || ($operator == "is" && $is_value_match) || ($operator == "isnot" && !$is_value_match);
     }
-
 
     private static function is_gravityforms_installed(){
         return class_exists("RGForms");
@@ -1397,7 +1407,7 @@ if($field['type'] == 'textarea') {
         }
     }
 
-    private function simpleXMLToArray($xml,
+    private static function simpleXMLToArray($xml,
                     $flattenValues=true,
                     $flattenAttributes = true,
                     $flattenChildren=true,
@@ -1450,7 +1460,7 @@ if($field['type'] == 'textarea') {
         return $return;
     }
 
-    private function convert_xml_to_object($response) {
+    private static function convert_xml_to_object($response) {
         $response = @simplexml_load_string($response);  // Added @ 1.2.2
         if(is_object($response)) {
             return $response;
@@ -1459,7 +1469,7 @@ if($field['type'] == 'textarea') {
         }
     }
 
-    private function convert_xml_to_array($response) {
+    private static function convert_xml_to_array($response) {
         $response = self::convert_xml_to_object($response);
         $response = self::simpleXMLToArray($response);
         if(is_array($response)) {
@@ -1479,12 +1489,12 @@ if($field['type'] == 'textarea') {
     }
 
     //Returns the url of the plugin's root folder
-    protected function get_base_url(){
+    protected static function get_base_url(){
         return plugins_url(null, __FILE__);
     }
 
     //Returns the physical path of the plugin's root folder
-    protected function get_base_path(){
+    protected static function get_base_path(){
         $folder = basename(dirname(__FILE__));
         return WP_PLUGIN_DIR . "/" . $folder;
     }
