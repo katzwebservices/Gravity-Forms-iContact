@@ -1,7 +1,7 @@
 === Gravity Forms iContact Add-on ===
 Tags: iContact, gravity forms, forms, gravity, form, crm, gravity form, email, newsletter, i Contact, mailing list, email marketing, newsletters
-Requires at least: 2.8
-Tested up to: 3.6
+Requires at least: 3.3
+Tested up to: 3.8.1
 Stable tag: trunk
 Contributors: katzwebdesign, katzwebservices
 Donate link:https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=zackkatz%40gmail%2ecom&item_name=Gravity%20Forms%20iContact&no_shipping=0&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8
@@ -57,6 +57,10 @@ This plugin is released under a GPL license.
 
 == Changelog ==
 
+= 1.3.2 = 
+* Fixed: When opt-in Field type is a product, the label selected on the Feed opt-in condition is different then the value sent on the form submission (it comes in format 'label'|'price' )
+* Fixed: PHP "static" warnings
+
 = 1.3.1 =
 * Removed fatal error development code. Sorry about that!
 
@@ -91,6 +95,10 @@ This plugin is released under a GPL license.
 * Liftoff!
 
 == Upgrade Notice ==
+
+= 1.3.2 = 
+* Fixed: When opt-in Field type is a product, the label selected on the Feed opt-in condition is different then the value sent on the form submission (it comes in format 'label'|'price' )
+* Fixed: PHP "static" warnings
 
 = 1.3.1 =
 * Removed fatal error development code. Sorry about that!

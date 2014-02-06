@@ -3,12 +3,12 @@
 Plugin Name: Gravity Forms iContact Add-On
 Plugin URI: http://www.seodenver.com/icontact/
 Description: Integrates Gravity Forms with iContact allowing form submissions to be automatically sent to your iContact account
-Version: 1.3.1.1
+Version: 1.3.2
 Author: Katz Web Services, Inc.
 Author URI: http://www.katzwebservices.com
 
 ------------------------------------------------------------------------
-Copyright 2011 Katz Web Services, Inc.
+Copyright 2014 Katz Web Services, Inc.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ class GFiContact {
     private static $path = "gravity-forms-icontact/icontact.php";
     private static $url = "http://www.gravityforms.com";
     private static $slug = "gravity-forms-icontact";
-    private static $version = "1.3.1";
+    private static $version = "1.3.2";
     private static $min_gravityforms_version = "1.3.9";
 
     //Plugin starting point. Will load appropriate files
@@ -1377,17 +1377,17 @@ if($field['type'] == 'textarea') {
     	if( empty( $settings['meta']['optin_enabled'] ) ) {
 			return true;
 		}
-    
+
         $config = $settings["meta"];
         $operator = $config["optin_operator"];
 
         $field = RGFormsModel::get_field($form, $config["optin_field_id"]);
         $field_value = RGFormsModel::get_field_value($field, array());
-        
+
         if( 'product' == $field['type'] && !empty( $config["optin_value_length"] ) ) {
         	$field_value = !empty( $field_value ) ? substr( $field_value, 0, $config["optin_value_length"] ) : ''; //@since 1.3.1.1
         }
-        
+
         $is_value_match = is_array($field_value) ? in_array($config["optin_value"], $field_value) : $field_value == $config["optin_value"];
 
         return  empty($field) || ($operator == "is" && $is_value_match) || ($operator == "isnot" && !$is_value_match);
