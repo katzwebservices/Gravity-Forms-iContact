@@ -1,7 +1,7 @@
 === Gravity Forms iContact Add-on ===
 Tags: iContact, gravity forms, forms, gravity, form, crm, gravity form, email, newsletter, i Contact, mailing list, email marketing, newsletters
 Requires at least: 2.8
-Tested up to: 3.8.1
+Tested up to: 3.6
 Stable tag: trunk
 Contributors: katzwebdesign, katzwebservices
 Donate link:https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=zackkatz%40gmail%2ecom&item_name=Gravity%20Forms%20iContact&no_shipping=0&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8
